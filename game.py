@@ -17,13 +17,7 @@ class Game:
         self.sounds.som_de_fundo()
 
     def carregar_recursos(self):
-        try:
-            self.imagemFundo = pygame.image.load('fundo.jpg')
-        except pygame.error as e:
-            print(f"Erro ao carregar a imagem de fundo: {e}")
-            pygame.quit()
-            sys.exit()
-
+        self.imagemFundo = pygame.image.load('fundo.jpg')
         self.LARGURAJANELA = self.imagemFundo.get_width()
         self.ALTURAJANELA = self.imagemFundo.get_height()
         self.tela = pygame.display.set_mode((self.LARGURAJANELA, self.ALTURAJANELA))
@@ -48,22 +42,15 @@ class Game:
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:
-                    self.player.move_up()
-                if event.key == pygame.K_DOWN:
-                    self.player.move_down()
+                if event.key == pygame.K_SPACE:  # Pulo com a tecla de espaço
+                    self.player.jump()
                 if event.key == pygame.K_LEFT:
                     self.player.move_left()
                 if event.key == pygame.K_RIGHT:
                     self.player.move_right()
                 if event.key == pygame.K_m:
                     self.sounds.parar_musica()
-
             if event.type == pygame.KEYUP:
-                if event.key == pygame.K_UP:
-                    self.player.stop_moving_up()
-                if event.key == pygame.K_DOWN:
-                    self.player.stop_moving_down()
                 if event.key == pygame.K_LEFT:
                     self.player.stop_moving_left()
                 if event.key == pygame.K_RIGHT:
@@ -71,9 +58,12 @@ class Game:
 
     def atualizar_posicoes(self):
         self.player.update_position()
+        self.enemy.move()  # Atualizar a posição do inimigo (movimento automático)
         
     def checar_colisoes(self):
-        if self.player.rect.colliderect(self.enemy.rect):
+        # Verificar colisão entre as máscaras
+        offset = (self.enemy.rect.x - self.player.rect.x, self.enemy.rect.y - self.player.rect.y)
+        if self.player.mask.overlap(self.enemy.mask, offset):
             self.fim_de_jogo()
 
     def carregar_fundo(self):
